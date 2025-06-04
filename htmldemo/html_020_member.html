@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        div {
+            width: 600px;
+            margin: 10px auto;
+        }
+
+        table,
+        td,
+        th {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        td {
+            font-weight: bold;
+        }
+
+        table {
+            width: 600px;
+        }
+
+        caption {
+            text-align: left;
+            font-weight: bolder;
+            margin-bottom: 10px;
+        }
+
+        .group {
+            text-align: center;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div>
+        <form action="#">
+            <table>
+                <caption>기본정보 입력</caption>
+                <tbody>
+                    <tr>
+                        <th>Name</th>
+                        <td><input type="text" /></td>
+                    </tr>
+                    <tr>
+                        <th>ID</th>
+                        <td><input type="text" /> <button>Duplicate Check</button></td>
+                    </tr>
+                    <tr>
+                        <th>Password</th>
+                        <td><input type="password" /></td>
+                    </tr>
+                    <tr>
+                        <th>Confirm Password</th>
+                        <td><input type="password" /></td>
+                    </tr>
+                    <tr>
+                        <th>Email</th>
+                        <td><input type="text"><span>@</span><select>
+                                <option>Select</option>
+                            </select></td>
+                    </tr>
+                    <tr>
+                        <th>Contact Number</th>
+                        <td><input type="text" /></td>
+                    </tr>
+                    <tr>
+                        <th>Receive Newsletter</th>
+                        <td><input type="radio" /> Yes <input type="radio" /> No</td>
+                    </tr>
+                    <tr>
+                        <th>Interests</th>
+                        <td><input type="checkbox">JAVA <input type="checkbox">C++ <input type="checkbox">Python<input
+                                type="checkbox">Android</td>
+                    </tr>
+                </tbody>
+            </table>
+            <input type="reset" value="Cancel">
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 간단한 웹 게임 모음</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .game-selector {
+            margin-bottom: 30px;
+        }
+        
+        .game-btn {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 25px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .game-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        .game-area {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .game-area.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 숫자 맞추기 게임 스타일 */
+        .guess-input {
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            margin: 10px;
+            text-align: center;
+            width: 200px;
+        }
+        
+        .guess-btn {
+            background: #FF6B6B;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        .guess-btn:hover {
+            background: #FF5252;
+        }
+        
+        /* 가위바위보 스타일 */
+        .rps-buttons {
+            margin: 20px 0;
+        }
+        
+        .rps-btn {
+            background: #4ECDC4;
+            border: none;
+            color: white;
+            padding: 20px;
+            margin: 10px;
+            border-radius: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            width: 80px;
+            height: 80px;
+        }
+        
+        .rps-btn:hover {
+            background: #45B7AA;
+            transform: scale(1.1);
+        }
+        
+        /* 색깔 맞추기 게임 */
+        .color-box {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            border-radius: 10px;
+            display: inline-block;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .color-box:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 결과 표시 */
+        .result {
+            font-size: 24px;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .score {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+        
+        /* 뱀 게임 */
+        #snakeCanvas {
+            border: 3px solid white;
+            background: rgba(0,0,0,0.8);
+            border-radius: 10px;
+        }
+        
+        .controls {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 재미있는 웹 게임들</h1>
+        
+        <div class="game-selector">
+            <button class="game-btn" onclick="showGame('guess')">🎯 숫자 맞추기</button>
+            <button class="game-btn" onclick="showGame('rps')">✂️ 가위바위보</button>
+            <button class="game-btn" onclick="showGame('color')">🌈 색깔 맞추기</button>
+            <button class="game-btn" onclick="showGame('snake')">🐍 뱀 게임</button>
+        </div>
+        
+        <!-- 숫자 맞추기 게임 -->
+        <div id="guessGame" class="game-area">
+            <h2>🎯 숫자 맞추기 게임</h2>
+            <p>1부터 100까지의 숫자 중 하나를 생각했어요!</p>
+            <input type="number" id="guessInput" class="guess-input" placeholder="숫자를 입력하세요" min="1" max="100">
+            <br>
+            <button class="guess-btn" onclick="checkGuess()">추측하기!</button>
+            <button class="guess-btn" onclick="resetGuessGame()">새 게임</button>
+            <div id="guessResult" class="result"></div>
+            <div id="guessAttempts" class="score">시도 횟수: 0</div>
+        </div>
+        
+        <!-- 가위바위보 게임 -->
+        <div id="rpsGame" class="game-area">
+            <h2>✂️ 가위바위보 게임</h2>
+            <p>컴퓨터와 가위바위보 대결!</p>
+            <div class="rps-buttons">
+                <button class="rps-btn" onclick="playRPS('가위')">✂️</button>
+                <button class="rps-btn" onclick="playRPS('바위')">🗿</button>
+                <button class="rps-btn" onclick="playRPS('보')">📄</button>
+            </div>
+            <div id="rpsResult" class="result"></div>
+            <div class="score">
+                승리: <span id="wins">0</span> | 
+                패배: <span id="losses">0</span> | 
+                무승부: <span id="ties">0</span>
+            </div>
+        </div>
+        
+        <!-- 색깔 맞추기 게임 -->
+        <div id="colorGame" class="game-area">
+            <h2>🌈 색깔 맞추기 게임</h2>
+            <p id="colorQuestion">다음 색깔을 찾으세요:</p>
+            <div id="targetColor" style="width: 100px; height: 100px; margin: 20px auto; border-radius: 10px;"></div>
+            <div id="colorOptions"></div>
+            <div id="colorResult" class="result"></div>
+            <div id="colorScore" class="score">점수: 0</div>
+            <button class="guess-btn" onclick="newColorGame()">새 문제</button>
+        </div>
+        
+        <!-- 뱀 게임 -->
+        <div id="snakeGame" class="game-area">
+            <h2>🐍 뱀 게임</h2>
+            <p>화살표 키나 WASD로 뱀을 조종하세요!</p>
+            <canvas id="snakeCanvas" width="400" height="400"></canvas>
+            <div class="controls">
+                <p>점수: <span id="snakeScore">0</span></p>
+                <button class="guess-btn" onclick="resetSnakeGame()">다시 시작</button>
+            </div>
+            <div class="controls">
+                <small>📱 모바일: 화면을 터치해서 방향 변경</small>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 게임 전환 함수
+        function showGame(gameType) {
+            const games = document.querySelectorAll('.game-area');
+            games.forEach(game => game.classList.remove('active'));
+            
+            document.getElementById(gameType + 'Game').classList.add('active');
+            
+            if (gameType === 'color') newColorGame();
+            if (gameType === 'snake') initSnakeGame();
+        }
+        
+        // 숫자 맞추기 게임
+        let secretNumber = Math.floor(Math.random() * 100) + 1;
+        let attempts = 0;
+        
+        function checkGuess() {
+            const guess = parseInt(document.getElementById('guessInput').value);
+            const result = document.getElementById('guessResult');
+            attempts++;
+            
+            if (isNaN(guess) || guess < 1 || guess > 100) {
+                result.innerHTML = '❌ 1부터 100 사이의 숫자를 입력해주세요!';
+                result.style.color = '#FF6B6B';
+                return;
+            }
+            
+            if (guess === secretNumber) {
+                result.innerHTML = `🎉 정답입니다! ${attempts}번 만에 맞췄어요!`;
+                result.style.color = '#4ECDC4';
+            } else if (guess < secretNumber) {
+                result.innerHTML = '📈 더 큰 수를 입력해보세요!';
+                result.style.color = '#FFE66D';
+            } else {
+                result.innerHTML = '📉 더 작은 수를 입력해보세요!';
+                result.style.color = '#FFE66D';
+            }
+            
+            document.getElementById('guessAttempts').innerHTML = `시도 횟수: ${attempts}`;
+            document.getElementById('guessInput').value = '';
+        }
+        
+        function resetGuessGame() {
+            secretNumber = Math.floor(Math.random() * 100) + 1;
+            attempts = 0;
+            document.getElementById('guessResult').innerHTML = '';
+            document.getElementById('guessAttempts').innerHTML = '시도 횟수: 0';
+            document.getElementById('guessInput').value = '';
+        }
+        
+        // 가위바위보 게임
+        let wins = 0, losses = 0, ties = 0;
+        
+        function playRPS(playerChoice) {
+            const choices = ['가위', '바위', '보'];
+            const computerChoice = choices[Math.floor(Math.random() * 3)];
+            const result = document.getElementById('rpsResult');
+            
+            let outcome = '';
+            if (playerChoice === computerChoice) {
+                outcome = '무승부';
+                ties++;
+                result.style.color = '#FFE66D';
+            } else if (
+                (playerChoice === '가위' && computerChoice === '보') ||
+                (playerChoice === '바위' && computerChoice === '가위') ||
+                (playerChoice === '보' && computerChoice === '바위')
+            ) {
+                outcome = '승리';
+                wins++;
+                result.style.color = '#4ECDC4';
+            } else {
+                outcome = '패배';
+                losses++;
+                result.style.color = '#FF6B6B';
+            }
+            
+            const emoji = {
+                '가위': '✂️',
+                '바위': '🗿',
+                '보': '📄'
+            };
+            
+            result.innerHTML = `
+                당신: ${emoji[playerChoice]} vs 컴퓨터: ${emoji[computerChoice]}<br>
+                결과: ${outcome}!
+            `;
+            
+            document.getElementById('wins').textContent = wins;
+            document.getElementById('losses').textContent = losses;
+            document.getElementById('ties').textContent = ties;
+        }
+        
+        // 색깔 맞추기 게임
+        let colorScore = 0;
+        let currentColor = '';
+        
+        function newColorGame() {
+            const colors = [
+                { name: '빨강', code: '#FF6B6B' },
+                { name: '파랑', code: '#4ECDC4' },
+                { name: '노랑', code: '#FFE66D' },
+                { name: '초록', code: '#4CAF50' },
+                { name: '보라', code: '#9C27B0' },
+                { name: '주황', code: '#FF9800' }
+            ];
+            
+            currentColor = colors[Math.floor(Math.random() * colors.length)];
+            document.getElementById('targetColor').style.backgroundColor = currentColor.code;
+            
+            // 옵션 생성 (정답 + 랜덤 2개)
+            const options = [currentColor];
+            while (options.length < 3) {
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                if (!options.find(c => c.name === randomColor.name)) {
+                    options.push(randomColor);
+                }
+            }
+            
+            // 섞기
+            options.sort(() => Math.random() - 0.5);
+            
+            const optionsDiv = document.getElementById('colorOptions');
+            optionsDiv.innerHTML = '';
+            
+            options.forEach(color => {
+                const colorBox = document.createElement('div');
+                colorBox.className = 'color-box';
+                colorBox.style.backgroundColor = color.code;
+                colorBox.onclick = () => checkColor(color.name);
+                optionsDiv.appendChild(colorBox);
+            });
+            
+            document.getElementById('colorResult').innerHTML = '';
+        }
+        
+        function checkColor(selectedColor) {
+            const result = document.getElementById('colorResult');
+            if (selectedColor === currentColor.name) {
+                result.innerHTML = '🎉 정답입니다!';
+                result.style.color = '#4ECDC4';
+                colorScore += 10;
+                setTimeout(newColorGame, 1500);
+            } else {
+                result.innerHTML = `❌ 틀렸어요! 정답은 ${currentColor.name}이었습니다.`;
+                result.style.color = '#FF6B6B';
+                colorScore = Math.max(0, colorScore - 5);
+                setTimeout(newColorGame, 2000);
+            }
+            document.getElementById('colorScore').innerHTML = `점수: ${colorScore}`;
+        }
+        
+        // 뱀 게임
+        let canvas, ctx;
+        let snake = [{x: 200, y: 200}];
+        let direction = {x: 0, y: 0};
+        let food = {x: 0, y: 0};
+        let snakeScore = 0;
+        let gameRunning = false;
+        
+        function initSnakeGame() {
+            canvas = document.getElementById('snakeCanvas');
+            ctx = canvas.getContext('2d');
+            resetSnakeGame();
+            
+            // 키보드 이벤트
+            document.addEventListener('keydown', changeDirection);
+            
+            // 터치 이벤트 (모바일)
+            let touchStartX, touchStartY;
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            });
+            
+            canvas.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                if (!touchStartX || !touchStartY) return;
+                
+                const touchEndX = e.changedTouches[0].clientX;
+                const touchEndY = e.changedTouches[0].clientY;
+                
+                const deltaX = touchEndX - touchStartX;
+                const deltaY = touchEndY - touchStartY;
+                
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    direction = deltaX > 0 ? {x: 20, y: 0} : {x: -20, y: 0};
+                } else {
+                    direction = deltaY > 0 ? {x: 0, y: 20} : {x: 0, y: -20};
+                }
+            });
+        }
+        
+        function resetSnakeGame() {
+            snake = [{x: 200, y: 200}];
+            direction = {x: 0, y: 0};
+            snakeScore = 0;
+            document.getElementById('snakeScore').textContent = snakeScore;
+            generateFood();
+            gameRunning = true;
+            gameLoop();
+        }
+        
+        function generateFood() {
+            food = {
+                x: Math.floor(Math.random() * 20) * 20,
+                y: Math.floor(Math.random() * 20) * 20
+            };
+        }
+        
+        function changeDirection(event) {
+            const LEFT_KEY = 37, RIGHT_KEY = 39, UP_KEY = 38, DOWN_KEY = 40;
+            const A_KEY = 65, D_KEY = 68, W_KEY = 87, S_KEY = 83;
+            
+            if (!gameRunning) return;
+            
+            switch(event.keyCode) {
+                case LEFT_KEY:
+                case A_KEY:
+                    if (direction.x === 0) direction = {x: -20, y: 0};
+                    break;
+                case UP_KEY:
+                case W_KEY:
+                    if (direction.y === 0) direction = {x: 0, y: -20};
+                    break;
+                case RIGHT_KEY:
+                case D_KEY:
+                    if (direction.x === 0) direction = {x: 20, y: 0};
+                    break;
+                case DOWN_KEY:
+                case S_KEY:
+                    if (direction.y === 0) direction = {x: 0, y: 20};
+                    break;
+            }
+        }
+        
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            setTimeout(() => {
+                clearCanvas();
+                moveSnake();
+                drawFood();
+                drawSnake();
+                checkCollision();
+                gameLoop();
+            }, 150);
+        }
+        
+        function clearCanvas() {
+            ctx.fillStyle = 'rgba(0,0,0,0.8)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        function moveSnake() {
+            const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
+            snake.unshift(head);
+            
+            if (head.x === food.x && head.y === food.y) {
+                snakeScore += 10;
+                document.getElementById('snakeScore').textContent = snakeScore;
+                generateFood();
+            } else {
+                snake.pop();
+            }
+        }
+        
+        function drawSnake() {
+            ctx.fillStyle = '#4ECDC4';
+            snake.forEach((segment, index) => {
+                if (index === 0) {
+                    ctx.fillStyle = '#FF6B6B'; // 머리는 빨간색
+                } else {
+                    ctx.fillStyle = '#4ECDC4'; // 몸은 청록색
+                }
+                ctx.fillRect(segment.x, segment.y, 18, 18);
+            });
+        }
+        
+        function drawFood() {
+            ctx.fillStyle = '#FFE66D';
+            ctx.fillRect(food.x, food.y, 18, 18);
+        }
+        
+        function checkCollision() {
+            const head = snake[0];
+            
+            // 벽 충돌
+            if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
+                gameOver();
+                return;
+            }
+            
+            // 자기 몸 충돌
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    gameOver();
+                    return;
+                }
+            }
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.fillRect(50, 150, 300, 100);
+            
+            ctx.fillStyle = 'black';
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('게임 오버!', 200, 190);
+            ctx.font = '18px Arial';
+            ctx.fillText(`최종 점수: ${snakeScore}`, 200, 220);
+        }
+        
+        // 엔터 키로 숫자 맞추기 게임 실행
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && document.getElementById('guessGame').classList.contains('active')) {
+                checkGuess();
+            }
+        });
+        
+        // 페이지 로드시 첫 번째 게임 표시
+        window.onload = function() {
+            showGame('guess');
+        };
+    </script>
+</body>
+</html>
